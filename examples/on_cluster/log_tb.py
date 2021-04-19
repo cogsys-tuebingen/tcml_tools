@@ -23,6 +23,8 @@ if __name__ == "__main__":
     print('save dir:', args.save_dir)
 
     # simple logging
+    # logging statements may go to the .err files if you set up a stream handler
+    # in this case, just log to a file in the save dir
     logger = Logger(__name__)
     logger.addHandler(FileHandler("%s/logging.txt" % args.save_dir))
     logger.setLevel(INFO)
@@ -30,7 +32,7 @@ if __name__ == "__main__":
     # log to tensorboard
     writer = SummaryWriter(log_dir="%s/tb/" % args.save_dir)
 
-    # logging statements usually go to the .err files, and can also be saved easily
+    # log args
     for k, v in vars(args).items():
         print(k, v)
         logger.info("%s = %s" % (k, str(v)))
@@ -49,3 +51,4 @@ if __name__ == "__main__":
     rs = [r + i for i in range(100)]
     for i, rx in enumerate(rs):
         writer.add_scalar("random/r", rx, global_step=i)
+    writer.close()

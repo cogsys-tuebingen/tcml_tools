@@ -3,6 +3,7 @@ execute /run_on_cluster/log_tb.py on the cluster with some arbitrary parameters
 
 TODO:
 - set email
+- set username
 - run on the cluster, copy the "gm.add_group(...)" output lines for the next file
 """
 
@@ -28,7 +29,7 @@ if __name__ == "__main__":
         'time': time,
 
         # email
-        'user_mail': 'my-email@uni-tuebingen.de',  # TODO set your email
+        'user_mail': '<my-email>@uni-tuebingen.de',  # TODO set your email
         'mail_type': 'ALL',
 
         # resources
@@ -37,10 +38,12 @@ if __name__ == "__main__":
         'gpus': '1',
 
         # singularity image to run your code in
-        'img': '/common/singularityImages/TCML-Cuda10_1_TF2_3_0_PT1_6_v2.simg',
+        'img': '/common/singularityImages/TCML-Cuda11_0_TF2_4_1_PT1_7_1.simg',
 
         # where to dump the .err and .out files
-        'out_path': "${HOME}/experiments/_outfiles/{project}/{type}/%s/${SLURM_JOB_ID}" % partition,
+        # sadly ${HOME} or ${SLURM_JOB_ID} do not work here
+        # local paths (./scripts/...) do work, if you do not mind having them there
+        'out_path': "/home/<username>/experiments/_outfiles/{project}/{type}/%s/" % partition,  # TODO set user name
 
         # generic replacements, use e.g. for data/save dirs
         'code_dir': '${HOME}/code/',

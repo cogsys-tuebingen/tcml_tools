@@ -8,7 +8,7 @@ from slurmer.parse import GroupManager, Metrics
 
 
 if __name__ == "__main__":
-    # 1. TODO figure out which directory everything is save to.
+    # 1. TODO figure out which directory everything is saved to.
     # it is necessary that the runs are jobs save into dirs depending on their slurm id (happens by default)
     # generally you probably want to mount the TCML cluster, e.g. via SSHFS
     path = '/mnt/tcml-master01/mnt/beegfs/home/laube/experiments/tcml_tools/log_tb/'  # path on the mounted cluster
@@ -28,15 +28,16 @@ if __name__ == "__main__":
     # define the metrics used to parse your results
     # they are extracted from the tensorboard files that are found in the given path and referenced to a specific job
     # the keys are exactly what is published in tensorboard
-    # TODO adapt as needed
+    # adapt as needed for your specific use case
     metrics = [
         # the only thing we logged to tensorboard, use the last 10 values, compute avg & med & std
-        Metrics('random/r', float_acc=2, last_k=10, avg=True, med=True, std=True),
+        # since r depends on the seed, the numbers should come out the same
+        Metrics('random/r', float_acc=2, last_k=10, avg=True, med=True, std=True, max=True, min=True),
 
         # this metric uses a non-existent key in the data, and publishes under another name,
         # but only for values that do not already exist.
         # if it is first in eval order, the non-existent results are overwritten
-        Metrics('exists_not',    float_acc=3, last_k=None,   avg=True, min=True, not_available_value="N/A", name="test/accuracy"),
+        Metrics('exists_not', float_acc=3, last_k=None, avg=True, min=True, not_available_value="N/A", name="test/accuracy"),
     ]
 
     # 5. update the groups

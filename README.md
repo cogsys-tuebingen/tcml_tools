@@ -4,6 +4,10 @@
 For infos about the cluster, check
 [this link](https://uni-tuebingen.de/fakultaeten/mathematisch-naturwissenschaftliche-fakultaet/fachbereiche/informatik/lehrstuehle/kognitive-systeme/projects/tcml-cluster/)
 
+Be responsible about your usage of the cluster.
+Since the resources are shared and limited, bad behavior may necessitate administrative actions.
+
+
 ----
 
 ## standard slurm workflow
@@ -37,7 +41,14 @@ The expected path for the examples is: ${HOME}/code/tcml_tools/
 
 ### check that it works as expected
 
-ssh to the cluster, cd to /tcml_tools/examples/ and set your email in the script. Then run
+ssh to the cluster, cd to /tcml_tools/examples/ and set your username and email in the script.
+You will most likely need to set your PYTHONPATH
+
+```
+export PYTHONPATH=${PYTHONPATH}:$HOME/code/tcml_tools/
+```
+
+Then run
 ```
 python3 log_tb1.py
 ```
