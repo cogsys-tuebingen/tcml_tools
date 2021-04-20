@@ -1,5 +1,13 @@
 """
 parse completed jobs
+
+TODO:
+- set the path, which directory each job saves to ("save_dir" value in log_tb1.py)
+    - since I personally execute the script from my local machine, the path accounts for the sshfs mounting
+    - if you do run this from the cluster as well, the path should start with /home/...
+- paste the "gm.add_group(...)" output lines and remove their placeholder in 3.
+- be sure that the pythonpath is set
+- cd to the script and run: python3 log_tb2.py
 """
 
 
@@ -11,7 +19,8 @@ if __name__ == "__main__":
     # 1. TODO figure out which directory everything is saved to.
     # it is necessary that the runs are jobs save into dirs depending on their slurm id (happens by default)
     # generally you probably want to mount the TCML cluster, e.g. via SSHFS
-    path = '/mnt/tcml-master01/mnt/beegfs/home/laube/experiments/tcml_tools/log_tb/'  # path on the mounted cluster
+    path = ""
+    # path = '/mnt/tcml-master01/mnt/beegfs/home/<my-username>/experiments/tcml_tools/log_tb/'  # example
     path = os.path.expanduser(path)
 
     # 2. define a group manager
@@ -54,4 +63,4 @@ if __name__ == "__main__":
     print()
     print('7', '-'*100)
     gm2 = gm.copy().filter_groups(dict(model=['resnet18']))
-    gm2.print_latex_table(sort_by='random/r avg', descending=True, ignore_keys=['mu', 'random/r std'])
+    gm2.print_latex_table(sort_by='random/r avg', descending=True, ignore_keys=['model', 'random/r std'])

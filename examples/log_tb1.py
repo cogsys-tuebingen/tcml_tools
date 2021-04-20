@@ -4,7 +4,11 @@ execute /run_on_cluster/log_tb.py on the cluster with some arbitrary parameters
 TODO:
 - set email
 - set username
-- run on the cluster, copy the "gm.add_group(...)" output lines for the next file
+- run on the cluster:
+    - ssh to the cluster
+    - set the pythonpath: export PYTHONPATH=${PYTHONPATH}:$HOME/code/tcml_tools/
+    - cd to the script and run: python3 log_tb1.py
+- copy the 4 "gm.add_group(...)" output lines for the next file
 """
 
 from slurmer.slurmer import Slurmer
@@ -43,7 +47,7 @@ if __name__ == "__main__":
         # where to dump the .err and .out files
         # sadly ${HOME} or ${SLURM_JOB_ID} do not work here
         # local paths (./scripts/...) do work, if you do not mind having them there
-        'out_path': "/home/<username>/experiments/_outfiles/{project}/{type}/%s/" % partition,  # TODO set user name
+        'out_path': "/home/<my-username>/experiments/_outfiles/{project}/{type}/%s/" % partition,  # TODO set user name
 
         # generic replacements, use e.g. for data/save dirs
         'code_dir': '${HOME}/code/',

@@ -41,28 +41,11 @@ The expected path for the examples is: ${HOME}/code/tcml_tools/
 
 ### check that it works as expected
 
-ssh to the cluster, cd to /tcml_tools/examples/ and set your username and email in the script.
-You will most likely need to set your PYTHONPATH
+ssh to the cluster and cd to /tcml_tools/examples/
 
-```
-export PYTHONPATH=${PYTHONPATH}:$HOME/code/tcml_tools/
-```
-
-Then run
-```
-python3 log_tb1.py
-```
-as output, the slurmer should provide you with tables of all created files,
-as well as some lines in the form of
-```
-gm.add_group('n0', [slurm_id, slurm_id], mu=0.1, model='vgg16')
-gm.add_group('n1', [slurm_id, slurm_id], mu=0.4, model='vgg16')
-gm.add_group('n2', [slurm_id, slurm_id], mu=0.1, model='resnet18')
-gm.add_group('n3', [slurm_id, slurm_id], mu=0.4, model='resnet18')
-```
-(where each slurm_id is some number). Copy these lines.
-
-Wait briefly until all jobs finished and follow the instructions in log_tb2.py.
+Follow the instructions in log_tb1.py,
+wait briefly until all jobs are finished,
+then follow the instructions in log_tb2.py.
 
 ----
 
