@@ -2,8 +2,8 @@
 interface to easily manage slurm jobs
 - create sbatch+sh files from templates, parametrize your runs via a grid search
 - queue the created files
-- print a table (for libre office calc) of the slurm ids + parameter combinations
-- print copy-paste code to easily fetch results later via GroupManager (stuff.tensorboard.parse)
+- print a csv table of the slurm ids + parameter combinations
+- print copy-paste code to easily fetch results later via GroupManager (slurmer.parse)
 
 maybe in future:
 - await jobs to finish
@@ -266,7 +266,7 @@ class Slurmer:
             print('%s%s%s' % (job_item.slurm_id, separator, separator.join([str(v) for v in job_item.param_combination])))
 
     def print_group_code(self, ignore=('seed', 'note')):
-        """ Prints the jobs in format for stuff.tensorboard.parse """
+        """ Prints the jobs in format for slurmer.parse """
         print('\nJobs in group code form:')
         group_ids = OrderedDict()
         group_params = OrderedDict()
