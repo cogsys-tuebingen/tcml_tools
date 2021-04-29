@@ -12,6 +12,7 @@ import os
 import shutil
 import shelve
 from copy import deepcopy
+from collections import defaultdict
 from slurmer.parse.group import Group, GroupSeparator
 from slurmer.parse.parser import TbParser
 from slurmer.parse.metrics import Result
@@ -77,6 +78,39 @@ class GroupManager:
                 if g1.name == g2.name:
                     g1.merge(g2)
                     break
+
+    def merge_groups_by_param(self, name: str, as_new_groups=False):
+        """
+        merge all groups in this GroupManager that only differ by one parameter, removes separators
+
+        :param name:
+        :type name:
+        :param as_new_groups: keep the individual groups and the merged ones, otherwise keep only the merged ones
+        """
+        # cluster groups, remove separators
+        clusters = defaultdict(list)
+        for g in self.groups:
+            if isinstance(g, GroupSeparator):
+                continue
+            params = g.params.copy()
+            params.pop(name)
+            clusters[tuple(params.values())].append(g)
+        # merge clusters
+        groups = []
+        for cluster in clusters.values():
+            g = Group("merged %d" % len(cluster), ids=[])
+            for g2 in cluster:
+                g.merge(g2)
+            g.params.pop(name)
+            groups.append(g)
+        # insert / replace
+        if as_new_groups:
+            self.groups.extend(groups)
+        else:
+            self.groups = groups
+            for g in self.groups:
+                g.params[name] = ""
+            Group.all_param_keys.pop(name)
 
     def add_group(self, *args, **kwargs):
         """ create and add a Group """
@@ -194,7 +228,9 @@ class GroupManager:
         combination_str = (' %s ' % align_symbol).join(['{%d:<%d}' % (i, l) for i, l in enumerate(lengths)])
         return [s[0] if len(s) == 1 else combination_str.format(*s) for s in split_strs]
 
-    def sorted_results(self, sort_by, descending):
+    def sorted_results(self, sort_by: str, descending: bool):
+        if len(sort_by) == 0:
+            return self.groups
         return sorted(self.groups, key=lambda g: g.results.get(sort_by, self.empty_result), reverse=descending)
 
     def print_csv_table(self, sort_by='', descending=True, **filter_kwargs):

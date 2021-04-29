@@ -27,7 +27,6 @@ class Group:
         new_dct = dct.copy()
         for key in ignore_keys:
             new_dct.pop(key, None)
-        # print('>>> FILTER:', 'old=', list(dct.keys()), 'new=', list(new_dct.keys()), 'ign=', ignore_keys)
         return new_dct
 
     @staticmethod
@@ -35,12 +34,14 @@ class Group:
         """ all known parameter keys of all groups """
         return sorted([k for k in Group.__filter(Group.all_param_keys, **filter_kwargs).keys()])
 
-    def merge(self, other):
+    def merge(self, other: 'Group'):
         """ merge another group into this one, keep this name """
         self.ids.extend(other.ids)
         self.params.update(other.params)
         self.data.update(other.data)
+        l0, l1 = len(self.results), len(other.results)
         self.results.update(other.results)
+        assert len(self.results) == l0+l1, "Some results were overwritten by merging!"
 
     def update_all_data(self, data: {str: dict}):
         """ updates the data of all group members that are in the data dict """
