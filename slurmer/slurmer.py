@@ -296,9 +296,10 @@ class Slurmer:
             group_ids[s1].append(job_item.slurm_id)
             group_params[s1] = s2
 
+        fmt_i = "{:<%d}" % len(str(len(group_ids)))
         for i, k in enumerate(group_ids.keys()):
             print("gm.add_group('n{i}', {ids}, {params})".format(**{
-                'i': i,
+                'i': fmt_i.format(i),
                 'ids': [int(i) for i in group_ids[k]],
                 'params': group_params[k],
             }))
