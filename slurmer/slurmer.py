@@ -18,6 +18,7 @@ import time
 import subprocess
 import re
 import shutil
+from typing import Callable
 from collections import Iterable, OrderedDict
 
 
@@ -265,19 +266,27 @@ class Slurmer:
         for job_item in self.jobs:
             print('%s%s%s' % (job_item.slurm_id, separator, separator.join([str(v) for v in job_item.param_combination])))
 
-    def print_group_code(self, ignore=('seed', 'note')):
-        """ Prints the jobs in format for slurmer.parse """
+    def print_group_code(self, ignore=('seed', 'note'), cast_params: Callable = None):
+        """
+        Prints the jobs in format for slurmer.parse
+
+        :param ignore: list/tuple of parameter keys that may differ within each group
+        :param cast_params: optional Callable fun(param name, param value) that returns a tuple of (name, value)
+                            to modify the printed lines
+        """
         print('\nJobs in group code form:')
         group_ids = OrderedDict()
         group_params = OrderedDict()
 
         def f(vars_: list) -> (str, str):
-            unignored = []
+            not_ignored = []
             for p, v in zip(self.sh_params_names, vars_):
                 if p not in ignore:
-                    unignored.append((p, "'%s'" % v) if type(v) is str else (p, v))
-            index_str = '#'.join([str(v) for _, v in unignored])
-            params_str = ', '.join(['%s=%s' % (u, v) for u, v in unignored])
+                    not_ignored.append((p, "'%s'" % v) if type(v) is str else (p, v))
+            if isinstance(cast_params, Callable):
+                not_ignored = [cast_params(k_, v_) for k_, v_ in not_ignored]
+            index_str = '#'.join([str(v) for _, v in not_ignored])
+            params_str = ', '.join(['%s=%s' % (u, v) for u, v in not_ignored])
             return index_str, params_str
 
         for job_item in self.jobs:
