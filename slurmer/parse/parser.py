@@ -1,5 +1,5 @@
 import os
-import re
+import regex as re
 import multiprocessing
 from typing import Tuple, List
 from collections import defaultdict
@@ -23,7 +23,8 @@ class TbParser:
             for file_name in file_names:
                 if '.out' in file_name:
                     try:
-                        id_ = int(int_pattern.findall(sub_dir)[offset][1:-1])
+                        ints = int_pattern.findall(sub_dir, overlapped=True)
+                        id_ = int(ints[offset][1:-1])
                         file_paths[id_].append('%s/%s' % (sub_dir, file_name))
                     except:
                         pass
