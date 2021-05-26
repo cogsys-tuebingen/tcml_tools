@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Union
 from collections import OrderedDict, defaultdict
-from slurmer.parse.metrics import Metrics
+from slurmer.parse.metrics import Result, Metrics
 
 
 class Group:
@@ -10,6 +10,7 @@ class Group:
     metrics will be computed over groups
     """
 
+    default_result = Result("__default__", -1, float_acc=1)
     all_param_keys = OrderedDict()
     all_result_keys = OrderedDict()
 
@@ -21,6 +22,10 @@ class Group:
         self.results = OrderedDict()
         for k in kwargs.keys():
             Group.all_param_keys[k] = True
+
+    def get_param_tuple(self, skip_keys=()) -> tuple:
+        """ get a tuple of all parameter-values, except for the skipped ones """
+        return tuple([self.params.get(k, '') for k in self.all_param_keys.keys() if k not in skip_keys])
 
     @staticmethod
     def __filter(dct: OrderedDict, ignore_keys=()) -> OrderedDict:
@@ -102,7 +107,7 @@ class Group:
             'n': self.name,
             'ids': str(self.ids),
             'params': separator.join([str(self.params.get(k, '')) for k in param_keys]),
-            'values': separator.join([self.results.get(k).str for k in value_keys]),
+            'values': separator.join([self.results.get(k, self.default_result).str for k in value_keys]),
         }
 
     def get_csv_str_header(self, **filter_kwargs) -> str:

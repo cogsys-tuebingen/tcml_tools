@@ -89,12 +89,11 @@ class GroupManager:
         """
         # cluster groups, remove separators
         clusters = defaultdict(list)
+
         for g in self.groups:
             if isinstance(g, GroupSeparator):
                 continue
-            params = g.params.copy()
-            params.pop(name)
-            clusters[tuple(params.values())].append(g)
+            clusters[g.get_param_tuple(skip_keys=(name,))].append(g)
         # merge clusters
         groups = []
         for cluster in clusters.values():
