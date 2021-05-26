@@ -257,3 +257,32 @@ class GroupManager:
             print(s)
         print('\\bottomrule')
         print('\\end{tabular}')
+
+    def get_plot_data(self, combine: str, on_x_axis: str, on_y_axis: str) -> dict:
+        """
+        get data that can be plot easily
+
+        :param combine: key, which groups have the same "line"
+        :param on_x_axis: key, which param/result to put on the x axis
+        :param on_y_axis: key, which param/result to put on the y axis
+        :return: dict of the following structure:
+                {
+                    key0: [(x00, y00), (x01, y01), ..., (x0n, y0n)],
+                    key1: [(x10, y10), (x11, y11), ..., (x1m, y1m)],
+                    ...
+                }
+        """
+        clusters = defaultdict(list)
+
+        # get desired values, grouped
+        for g in self.groups:
+            if isinstance(g, GroupSeparator):
+                continue
+            c = g.params.get(combine, "__missing_key__")
+            clusters[c].append((g.get(on_x_axis, default=-1), g.get(on_y_axis, default=-1)))
+
+        # sort ascending
+        for k in clusters.keys():
+            clusters[k] = sorted(clusters[k], key=lambda v: v[0])
+
+        return clusters

@@ -23,6 +23,14 @@ class Group:
         for k in kwargs.keys():
             Group.all_param_keys[k] = True
 
+    def get(self, key: str, default=None):
+        """ get param/result, or default otherwise """
+        if key in self.params:
+            return self.params.get(key)
+        if key in self.results:
+            return self.results.get(key).value
+        return default
+
     def get_param_tuple(self, skip_keys=()) -> tuple:
         """ get a tuple of all parameter-values, except for the skipped ones """
         return tuple([self.params.get(k, '') for k in self.all_param_keys.keys() if k not in skip_keys])
