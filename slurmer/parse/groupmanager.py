@@ -227,17 +227,26 @@ class GroupManager:
         combination_str = (' %s ' % align_symbol).join(['{%d:<%d}' % (i, l) for i, l in enumerate(lengths)])
         return [s[0] if len(s) == 1 else combination_str.format(*s) for s in split_strs]
 
-    def sorted_results(self, sort_by: str, descending: bool):
-        if len(sort_by) == 0:
-            return self.groups
-        return sorted(self.groups, key=lambda g: g.results.get(sort_by, self.empty_result), reverse=descending)
+    def sorted_results(self, sort_by: str, descending: bool, no_consecutive_separators=True) -> [Group]:
+        results = self.groups.copy()
+        if len(sort_by) > 0:
+            results = sorted(results, key=lambda g: g.results.get(sort_by, self.empty_result), reverse=descending)
+        if no_consecutive_separators:
+            separator_last, separator_cur = False, False
+            results2 = []
+            for groups in results:
+                separator_last, separator_cur = separator_cur, isinstance(groups, GroupSeparator)
+                if not (separator_last and separator_cur):
+                    results2.append(groups)
+            results = results2
+        return results
 
     def print_csv_table(self, sort_by='', descending=True, **filter_kwargs):
         """
         prints csv text, e.g. to copy to libre office calc, optionally sorted by some metric result
         """
         print(self.groups[0].get_csv_str_header(**filter_kwargs))
-        for g in self.sorted_results(sort_by, descending):
+        for g in self.sorted_results(sort_by, descending, no_consecutive_separators=True):
             print(g.get_csv_str(**filter_kwargs))
 
     def print_latex_table(self, sort_by='', descending=True, **filter_kwargs):
@@ -246,7 +255,7 @@ class GroupManager:
         the tables are intended for the latex booktabs package
         """
         strs = [self.groups[0].get_latex_str_header(**filter_kwargs)]
-        for g in self.sorted_results(sort_by, descending):
+        for g in self.sorted_results(sort_by, descending, no_consecutive_separators=True):
             strs.append(g.get_latex_str(**filter_kwargs))
         strs = self._align_strs(strs, '&')
         print('\\begin{tabular}{l%s}' % ('c'*strs[0].count('&')))
