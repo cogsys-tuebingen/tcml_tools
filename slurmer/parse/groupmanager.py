@@ -73,8 +73,8 @@ class GroupManager:
     def merge(self, other: 'GroupManager'):
         """ merge another GroupManager into this one, each group is merged by name """
         self.update_events(other.get_all_events())
-        for g1 in self.groups:
-            for g2 in other.groups:
+        for g1 in self.get_groups():
+            for g2 in other.get_groups():
                 if g1.name == g2.name:
                     g1.merge(g2)
                     break
@@ -90,7 +90,7 @@ class GroupManager:
         # cluster groups, remove separators
         clusters = defaultdict(list)
 
-        for g in self.groups:
+        for g in self.get_groups():
             if isinstance(g, GroupSeparator):
                 continue
             clusters[g.get_param_tuple(skip_keys=(name,))].append(g)
@@ -126,7 +126,7 @@ class GroupManager:
         """ find the corresponding sub-directories of the given jobs """
         paths = TbParser.list_paths(dir_, **path_kwargs)
         sub_dirs = {}
-        for g in self.groups:
+        for g in self.get_groups():
             for id_ in g.ids:
                 path = paths.get(id_)
                 if isinstance(path, str):
@@ -147,7 +147,7 @@ class GroupManager:
     def copy_folders(self, source_dir: str, target_dir: str, add_group_name=True, **path_kwargs):
         """ copies all related directories on the disk to a specified dir, optionally grouped by group name """
         sub_dirs = self.find_directories(source_dir, **path_kwargs)
-        for g in self.groups:
+        for g in self.get_groups():
             target_dir_ = '%s/%s/' % (target_dir, g.name) if add_group_name else target_dir
             for id_ in g.ids:
                 target_dir__ = '%s/%d/' % (target_dir_, id_)
@@ -156,10 +156,17 @@ class GroupManager:
                     shutil.copytree(path, target_dir__)
                     print(id_, '\tcopied\t', path, '\t->\t', target_dir__)
 
+    def get_groups(self, copy=False) -> [Group]:
+        """ get all groups """
+        groups = self.groups
+        if copy:
+            groups = groups.copy()
+        return groups
+
     def get_group(self, name=None, job_id=None) -> Group:
         """ return a copy of an existing group, by name (str) or job_id (int) """
         assert name is not None or job_id is not None
-        for g in self.groups:
+        for g in self.get_groups():
             if name == g.name or job_id in g.ids:
                 return deepcopy(g)
 
@@ -176,7 +183,7 @@ class GroupManager:
         if you want to use another subset of groups later, use this on a copy of your main GroupManager
         """
         new_groups = []
-        for g in self.groups:
+        for g in self.get_groups():
             add = True
             for key, values in filters.items():
                 if g.params.get(key, None) not in values:
@@ -194,7 +201,7 @@ class GroupManager:
         """
         # figure out which ids need parsing
         ids = []
-        for group in self.groups:
+        for group in self.get_groups():
             ids.extend(group.ids)
 
         # only parse newly added jobs
@@ -211,10 +218,19 @@ class GroupManager:
         self.update_events(events)
 
         # update data and results of each group
-        for g in self.groups:
+        for g in self.get_groups():
             g.update_all_data(self.get_all_events())
             g.update_results(metrics)
         return self
+
+    def get_values(self, key: str, unique=True) -> list:
+        """ get (different) values for a given param/result key """
+        values = []
+        for group in self.get_groups():
+            values.append(group.get(key, "N/A"))
+        if unique:
+            values = list(set(values))
+        return values
 
     @staticmethod
     def _align_strs(strs: [str], align_symbol='&') -> [str]:
@@ -228,7 +244,7 @@ class GroupManager:
         return [s[0] if len(s) == 1 else combination_str.format(*s) for s in split_strs]
 
     def sorted_results(self, sort_by: str, descending: bool, no_consecutive_separators=True) -> [Group]:
-        results = self.groups.copy()
+        results = self.get_groups(copy=True)
         if len(sort_by) > 0:
             results = sorted(results, key=lambda g: g.results.get(sort_by, self.empty_result), reverse=descending)
         if no_consecutive_separators:
@@ -245,7 +261,7 @@ class GroupManager:
         """
         prints csv text, e.g. to copy to libre office calc, optionally sorted by some metric result
         """
-        print(self.groups[0].get_csv_str_header(**filter_kwargs))
+        print(self.get_groups()[0].get_csv_str_header(**filter_kwargs))
         for g in self.sorted_results(sort_by, descending, no_consecutive_separators=True):
             print(g.get_csv_str(**filter_kwargs))
 
@@ -254,8 +270,9 @@ class GroupManager:
         prints text to copy to latex, optionally sorted by some metric result
         the tables are intended for the latex booktabs package
         """
-        strs = [self.groups[0].get_latex_str_header(**filter_kwargs)]
-        for g in self.sorted_results(sort_by, descending, no_consecutive_separators=True):
+        strs = [self.get_groups()[0].get_latex_str_header(**filter_kwargs)]
+        groups = self.sorted_results(sort_by, descending, no_consecutive_separators=True)
+        for g in groups:
             strs.append(g.get_latex_str(**filter_kwargs))
         strs = self._align_strs(strs, '&')
         print('\\begin{tabular}{l%s}' % ('c'*strs[0].count('&')))
@@ -284,7 +301,7 @@ class GroupManager:
         clusters = defaultdict(list)
 
         # get desired values, grouped
-        for g in self.groups:
+        for g in self.get_groups():
             if isinstance(g, GroupSeparator):
                 continue
             c = g.params.get(combine, "__missing_key__")
