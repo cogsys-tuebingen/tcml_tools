@@ -12,7 +12,7 @@ TODO:
 
 
 import os
-from slurmer.parse import GroupManager, Metrics
+from tcml_tools.slurmer.parse import GroupManager, Metrics
 
 
 if __name__ == "__main__":

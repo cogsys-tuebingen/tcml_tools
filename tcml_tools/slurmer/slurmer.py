@@ -33,6 +33,7 @@ class JobItem:
         self.sb_file = None
         self.sh_file = None
         self.slurm_id = -1
+        self.started = False
 
     def params_str(self, num=-1):
         return '_'.join([str(s) for s in self.param_combination[:num]])
@@ -249,6 +250,7 @@ class Slurmer:
                 print('Failed queueing job #%d, no output' % i)
             else:
                 job_item.slurm_id = int_pattern.findall(out.decode('utf-8'))[-1]
+                job_item.started = True
 
     def delete_files(self, folder=True):
         """ careful, jobs that have not yet started will crash due to this """

@@ -1,7 +1,7 @@
 import numpy as np
 from typing import Union
 from collections import OrderedDict, defaultdict
-from slurmer.parse.metrics import Result, Metrics
+from tcml_tools.slurmer.parse import Result, Metrics
 
 
 class Group:

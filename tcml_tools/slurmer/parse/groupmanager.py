@@ -13,9 +13,7 @@ import shutil
 import shelve
 from copy import deepcopy
 from collections import defaultdict
-from slurmer.parse.group import Group, GroupSeparator
-from slurmer.parse.parser import TbParser
-from slurmer.parse.metrics import Result
+from tcml_tools.slurmer.parse import Group, GroupSeparator, TbParser, Result
 
 
 class GroupManager:

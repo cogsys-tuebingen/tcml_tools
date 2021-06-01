@@ -11,8 +11,8 @@ TODO:
 - copy the 4 "gm.add_group(...)" output lines for the next file
 """
 
-from slurmer.slurmer import Slurmer
-from slurmer.queues import RunType
+from tcml_tools.slurmer.slurmer import Slurmer
+from tcml_tools.slurmer.queues import RunType
 
 
 if __name__ == "__main__":
