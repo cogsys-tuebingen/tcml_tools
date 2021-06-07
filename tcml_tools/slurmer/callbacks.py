@@ -37,7 +37,7 @@ class JobState(Enum):
             return JobState.FAILED
         if state in ['CANCELLED']:
             return JobState.CANCELLED
-        raise NotImplementedError("unknown state: %s" % state)
+        raise NotImplementedError('unknown state: "%s"' % state)
 
     @classmethod
     def get_job_state(cls, job_id: str) -> 'JobState':
@@ -53,8 +53,8 @@ class JobState(Enum):
             return JobState.JOB_NOT_FOUND
 
         lines = [line.strip() for line in lines]
-        lines = lines[:-1]  # remove "'" at the end
-        states = [cls.parse(line) for line in lines[-3:]]
+        lines = lines[2:-1]  # remove table header/line in the beginning, "'" at the end
+        states = [cls.parse(line) for line in lines]
         if all([s == states[0] for s in states]):
             return states[0]
         raise NotImplementedError("states differ for job_id=%s: %s" % (job_id, states))
@@ -120,7 +120,7 @@ class PrintJobStateCallback(AbstractCallback):
     def _run_fun(self):
         state = JobState.get_job_state(self.slurm_id)
         print("%.2f" % time.time(), state)
-        if state.is_ended():
+        if state.is_terminated():
             print("job ended, stopping the callback")
             self.stop()
 
@@ -149,5 +149,5 @@ class ReachedJobStateCallback(AbstractCallback):
 
 
 if __name__ == '__main__':
-    PrintJobStateCallback(slurm_id="405317", seconds=1.2).start()
+    PrintJobStateCallback(slurm_id="415106", seconds=1.2).start()
     # PrintJobStateCallback(slurm_id="414476", seconds=1).start()
