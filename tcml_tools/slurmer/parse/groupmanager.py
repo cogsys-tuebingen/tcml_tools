@@ -156,10 +156,10 @@ class GroupManager:
                     shutil.copytree(path, target_dir__)
                     print(id_, '\tcopied\t', path, '\t->\t', target_dir__)
 
-    def get_groups(self, copy=False) -> [Group]:
+    def get_groups(self, copy=False, remove_separators=False) -> [Group]:
         """ get all groups """
-        groups = self.groups
-        if copy:
+        groups = [g for g in self.groups if not isinstance(g, GroupSeparator)] if remove_separators else self.groups
+        if copy and not remove_separators:
             groups = groups.copy()
         return groups
 
@@ -288,7 +288,7 @@ class GroupManager:
         """ get a pandas DataFrame of the parsed data """
         data = {}
         for key in itertools.chain(Group.all_param_keys, Group.all_result_keys):
-            data[key] = [g.get(key) for g in self.get_groups()]
+            data[key] = [g.get(key) for g in self.get_groups(copy=False, remove_separators=True)]
         return pd.DataFrame(data)
 
     def get_plot_data(self, combine: str, on_x_axis: str, on_y_axis: str) -> dict:
