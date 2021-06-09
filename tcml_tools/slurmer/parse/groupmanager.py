@@ -11,6 +11,8 @@ parse metrics from tensorboard files alone!
 import os
 import shutil
 import shelve
+import itertools
+import pandas as pd
 from copy import deepcopy
 from collections import defaultdict
 from tcml_tools.slurmer.parse import Group, GroupSeparator, TbParser, Result
@@ -281,6 +283,13 @@ class GroupManager:
             print(s)
         print('\\bottomrule')
         print('\\end{tabular}')
+
+    def get_data_frame(self) -> pd.DataFrame:
+        """ get a pandas DataFrame of the parsed data """
+        data = {}
+        for key in itertools.chain(Group.all_param_keys, Group.all_result_keys):
+            data[key] = [g.get(key) for g in self.get_groups()]
+        return pd.DataFrame(data)
 
     def get_plot_data(self, combine: str, on_x_axis: str, on_y_axis: str) -> dict:
         """
